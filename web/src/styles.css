@@ -377,6 +377,16 @@ body {
   color: var(--text);
 }
 
+.pgDot {
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.pgDot:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  background: rgba(0,0,0,0.18);
+}
+
 .footerSpace {
   padding-top: 14px;
 }
@@ -444,6 +454,52 @@ body {
 
 .mobileOnly {
   display: none;
+}
+
+.desktopOnly {
+  display: inline-flex;
+}
+
+.langToggle {
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.langMenu {
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%) translateX(6px) scale(0.98);
+  display: flex;
+  flex-direction: row; /* horizontal bar */
+  gap: 8px;
+  padding: 6px;
+  background: rgba(20,20,20,0.98);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 180ms cubic-bezier(.2,.9,.2,1), opacity 160ms ease;
+  z-index: 60;
+  white-space: nowrap;
+  max-width: 320px;
+  overflow-x: auto;
+}
+
+.langMenu.open {
+  transform: translateY(-50%) translateX(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.langMenu .btn {
+  min-width: 90px;
+  padding: 6px 10px;
+  justify-content: center;
+  border-radius: 8px;
 }
 
 /* Favorites */
@@ -579,8 +635,39 @@ body {
     display: inline-flex;
   }
 
+  .desktopOnly {
+    display: none;
+  }
+
   .cardWrap {
-    min-height: 620px;
+    min-height: 480px;
+  }
+
+  /* make language menu shorter on mobile to avoid overlapping header title */
+  .langMenu {
+    right: auto;
+    left: 8px; /* keep near left side so it doesn't cover brand */
+    top: calc(100% + 8px);
+    transform: translateY(0) translateX(0) scale(0.98);
+    max-width: 220px;
+    overflow-x: auto;
+    padding: 6px 8px;
+  }
+
+  .langMenu .btn {
+    min-width: 70px;
+    padding: 6px 8px;
+  }
+
+  /* hide default scrollbars on mobile while preserving scroll behavior */
+  html, body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  html::-webkit-scrollbar, body::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
   }
 }
 

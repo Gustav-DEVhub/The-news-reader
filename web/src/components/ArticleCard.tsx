@@ -1,4 +1,5 @@
 import type { NewsArticle } from "../lib/newsapi";
+import { useI18n } from "../i18n";
 
 type Props = {
   article: NewsArticle;
@@ -7,6 +8,7 @@ type Props = {
 };
 
 export default function ArticleCard({ article, isFavorite, onToggleFavorite }: Props) {
+  const { t, lang } = useI18n();
   const title = article.title || "Untitled";
   const imageSrc = article.image_url || "/placeholder.png";
   const alt = article.title ? `Imagen de: ${article.title}` : "Imagen de noticia";
@@ -35,16 +37,16 @@ export default function ArticleCard({ article, isFavorite, onToggleFavorite }: P
         <div className="cardMeta">
           <span className="pill">{article.source || "TheNewsApi"}</span>
           {article.published_at ? (
-            <span className="muted">{new Date(article.published_at).toLocaleString("es-ES")}</span>
+            <span className="muted">{new Date(article.published_at).toLocaleString(lang === "es" ? "es-ES" : "en-US")}</span>
           ) : null}
         </div>
 
         <h1 className="cardTitle">{title}</h1>
-        <p className="cardDesc">{article.description || article.snippet || "Sin descripción."}</p>
+        <p className="cardDesc">{article.description || article.snippet || t("article.noDescription")}</p>
 
         <div className="cardActions">
           <a className="btn primary" href={article.url} target="_blank" rel="noreferrer">
-            Ver artículo completo
+            {t("article.read")}
           </a>
           <button
             type="button"
@@ -52,7 +54,7 @@ export default function ArticleCard({ article, isFavorite, onToggleFavorite }: P
             onClick={onToggleFavorite}
             aria-pressed={isFavorite}
           >
-            {isFavorite ? "Guardado" : "Guardar en Favoritos"}
+            {isFavorite ? t("article.saved") : t("article.save")}
           </button>
         </div>
       </div>

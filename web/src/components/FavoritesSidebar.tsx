@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useI18n } from "../i18n";
 import type { NewsArticle } from "../lib/newsapi";
 
 const STORAGE_KEY = "news-reader:favorites";
@@ -55,8 +56,9 @@ export default function FavoritesSidebar({ isOpen, onClose, onSelect }: Props) {
     };
   }, [isOpen]);
 
+  const { t } = useI18n();
   const count = items.length;
-  const title = useMemo(() => (count === 1 ? "1 Favorito" : `${count} Favoritos`), [count]);
+  const title = useMemo(() => (count === 1 ? t("favorites.title.single") : t("favorites.title.multi", { count: String(count) })), [count, t]);
 
   function remove(url: string) {
     const next = items.filter((x) => x.url !== url);
@@ -67,19 +69,19 @@ export default function FavoritesSidebar({ isOpen, onClose, onSelect }: Props) {
   if (!isOpen) return null;
 
   return (
-    <aside className="favOverlay" role="dialog" aria-modal="true" aria-label="Favoritos">
+    <aside className="favOverlay" role="dialog" aria-modal="true" aria-label={t("favorites.button")}>
       <div className="favPanel">
         <div className="favHeader">
           <h2 className="favTitle">{title}</h2>
           <button type="button" className="btn ghost" onClick={onClose}>
-            Volver
+            {t("favorites.back")}
           </button>
         </div>
 
         {count === 0 ? (
-          <div className="favEmpty">No hay favoritos guardados.</div>
+          <div className="favEmpty">{t("favorites.empty")}</div>
         ) : (
-          <ul className="favList" aria-label="Lista de favoritos">
+          <ul className="favList" aria-label={t("favorites.button")}>
             {items.map((a) => (
               <li key={a.url} className="favItem">
                 <button type="button" className="favPick" onClick={() => onSelect(a)}>
@@ -91,7 +93,7 @@ export default function FavoritesSidebar({ isOpen, onClose, onSelect }: Props) {
                 </button>
 
                 <button type="button" className="favRemove" onClick={() => remove(a.url)} aria-label="Eliminar favorito">
-                  Eliminar
+                  {t("favorites.remove")}
                 </button>
               </li>
             ))}

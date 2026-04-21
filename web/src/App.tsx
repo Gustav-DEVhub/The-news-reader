@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ArticleCard from "./components/ArticleCard";
 import FavoritesSidebar, { readFavorites, writeFavorites } from "./components/FavoritesSidebar";
 import Paginator from "./components/Paginator";
+import LanguageToggle from "./components/LanguageToggle";
+import { useI18n } from "./i18n";
 import {
   DEFAULT_CATEGORY,
   LIMIT,
@@ -69,6 +71,8 @@ export default function App() {
   const safeIndex = clamp(currentIndex, 0, Math.max(0, pageArticles.length - 1));
   const article = pageArticles[safeIndex];
   const absoluteStart = (page - 1) * LIMIT;
+
+  const { t, lang, langDisplay } = useI18n();
 
   async function loadPage(
     nextPage: number,
@@ -235,7 +239,7 @@ export default function App() {
       return {
         label: String(abs),
         active: idx === safeIndex,
-        ariaLabel: `Artículo ${abs}`,
+        ariaLabel: lang === "es" ? `Artículo ${abs}` : `Article ${abs}`,
         onClick: () => setCurrentIndex(idx),
       };
     });
@@ -256,18 +260,7 @@ export default function App() {
     .slice()
     .sort((a, b) => a.localeCompare(b));
 
-  const CATEGORY_LABELS: Record<Category, string> = {
-    tech: "Tech",
-    general: "General",
-    science: "Ciencia",
-    sports: "Deportes",
-    business: "Negocios",
-    health: "Salud",
-    entertainment: "Entretenimiento",
-    politics: "Política",
-    food: "Comida",
-    travel: "Viajes",
-  };
+  const CATEGORY_LABELS = (c: Category) => t(`category.${c}`);
 
   const isFavorite = article ? favoritesUrlSet.has(article.url) : false;
 
@@ -278,11 +271,14 @@ export default function App() {
           <span className="brandMark" aria-hidden="true">
             N
           </span>
-          <span className="brandText">News Reader</span>
+          <span className="brandText">{t("brand")}</span>
         </div>
-        <button type="button" className="btn ghost mobileOnly" onClick={() => setFiltersOpen((x) => !x)}>
-          {filtersOpen ? "Ocultar filtros" : "Mostrar filtros"}
-        </button>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <LanguageToggle />
+          <button type="button" className="btn ghost mobileOnly" onClick={() => setFiltersOpen((x) => !x)}>
+            {filtersOpen ? t("filters.hide") : t("filters.show")}
+          </button>
+        </div>
       </header>
 
       <div className="shell">
@@ -296,7 +292,7 @@ export default function App() {
             }}
           >
             <label className="label" htmlFor="search">
-              Buscar
+              {t("search.label")}
             </label>
             <div className="searchRow">
               <input
@@ -304,22 +300,22 @@ export default function App() {
                 className="input"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="AI, Apple, ciencia…"
+                placeholder={t("search.placeholder")}
                 aria-label="Buscar"
               />
               <button type="submit" className="btn primary">
-                Buscar
+                  {t("search.button")}
               </button>
             </div>
             <div className="hint">
               {searchValue ? (
-                "Using search (categories omitted)."
+                t("hint.searchUsed")
               ) : (
                 <>
-                  Mostrando resultados para la categoría seleccionada. No se aplicó búsqueda por texto
+                  {t("hint.categorySelected")}
                   {feed?.meta?.filtered ? (
                     <span style={{ marginLeft: 8, fontSize: 12, color: "var(--accent)" }} title={`${feed.meta.filtered} items were filtered by category`}>
-                      • {feed.meta.filtered} filtered
+                      {t("filtered", { count: String(feed.meta.filtered) })}
                     </span>
                   ) : null}
                 </>
@@ -327,8 +323,8 @@ export default function App() {
             </div>
           </form>
 
-          <div className="catBox" role="group" aria-label="Categorías">
-            <div className="label">Categories</div>
+          <div className="catBox" role="group" aria-label={t("categories.label")}>
+            <div className="label">{t("categories.label")}</div>
             <div className="catGrid">
               {categories.map((c) => (
                 <button
@@ -337,7 +333,7 @@ export default function App() {
                   className={`catBtn ${!searchValue && category === c ? "active" : ""}`}
                   onClick={() => applyCategory(c)}
                 >
-                  {CATEGORY_LABELS[c] ?? c}
+                  {CATEGORY_LABELS(c) ?? c}
                 </button>
               ))}
             </div>
@@ -346,7 +342,7 @@ export default function App() {
 
           <div className="sidebarFooter">
             <button type="button" className="btn ghost wide" onClick={() => setFavoritesOpen(true)}>
-              Favoritos
+              {t("favorites.button")}
             </button>
           </div>
         </aside>
@@ -390,7 +386,7 @@ export default function App() {
                   middle={middle}
                 />
                 <div className="footerNote" aria-hidden="true">
-                  Datos de TheNewsApi · Interfaz: Español · Límite por página: {LIMIT}
+                  {t("footer", { lang: langDisplay, limit: String(LIMIT) })}
                 </div>
               </div>
             </>
