@@ -1,0 +1,586 @@
+:root {
+  color-scheme: dark;
+  --bg0: #222;
+  --bg1: #333;
+  --panel: rgba(255, 255, 255, 0.06);
+  --panel2: rgba(255, 255, 255, 0.09);
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.68);
+  --shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  --accent: #7dd3fc;
+  --accent2: #a78bfa;
+  --border: rgba(255, 255, 255, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial,
+    "Apple Color Emoji",
+    "Segoe UI Emoji";
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(125, 211, 252, 0.12), transparent 60%),
+    radial-gradient(900px 500px at 90% 15%, rgba(167, 139, 250, 0.10), transparent 55%),
+    linear-gradient(180deg, var(--bg1), var(--bg0));
+  color: var(--text);
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  background: rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brandMark {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(125, 211, 252, 0.35), rgba(167, 139, 250, 0.35));
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+  font-weight: 800;
+}
+
+.brandText {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.shell {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  padding: 16px;
+}
+
+.sidebar {
+  /* Use a slightly darker, more solid background to avoid a visible
+     lighter strip appearing when scrolling. Keep a subtle border. */
+  background: rgba(20, 20, 20, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: sticky;
+  top: 72px;
+  height: calc(100vh - 88px);
+  overflow: hidden;
+}
+
+.sidebarBody {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding-right: 6px; /* give small room for scrollbar */
+}
+
+.label {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.3px;
+  margin-bottom: 6px;
+}
+
+.searchRow {
+  display: flex;
+  gap: 10px;
+}
+
+.input {
+  flex: 1;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--text);
+  padding: 0 12px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: rgba(125, 211, 252, 0.55);
+  box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.18);
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+.catGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.catBtn {
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--text);
+  cursor: pointer;
+  text-transform: capitalize;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.catBtn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.catBtn.active {
+  border-color: rgba(125, 211, 252, 0.55);
+  background: rgba(125, 211, 252, 0.12);
+}
+
+.sidebarFooter {
+  margin-top: auto;
+  /* sticky footer that stays within the sidebar bounds */
+  position: sticky;
+  bottom: 0;
+  padding: 14px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  /* match the sidebar background so no contrasting strip appears */
+  background: rgba(20, 20, 20, 0.92);
+  margin-left: 0;
+  margin-right: 0;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  box-shadow: none;
+}
+
+.wide {
+  width: 100%;
+}
+
+.content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 88px);
+}
+
+.cardWrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.card {
+  height: 100%;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.20);
+  box-shadow: var(--shadow);
+  display: grid;
+}
+
+.cardMedia {
+  position: relative;
+  height: 100%;
+}
+
+.cardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(1.05) contrast(1.05);
+}
+
+.cardShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.80));
+}
+
+.cardOverlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 18px 18px 16px 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.cardMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.pill {
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: clamp(22px, 2.2vw, 34px);
+  line-height: 1.12;
+}
+
+.cardDesc {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.86);
+  line-height: 1.45;
+  max-width: 70ch;
+}
+
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btn {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn.primary {
+  border-color: rgba(125, 211, 252, 0.55);
+  background: rgba(125, 211, 252, 0.12);
+}
+
+.btn.ghost.active {
+  border-color: rgba(167, 139, 250, 0.55);
+  background: rgba(167, 139, 250, 0.12);
+}
+
+.paginator {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  /* use a darker background to blend with the main card and avoid a light strip */
+  background: rgba(20, 20, 20, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+.pgBtn {
+  width: 44px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.18);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.pgMid {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pgDot {
+  min-width: 44px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.pgDot.active {
+  border-color: rgba(125, 211, 252, 0.55);
+  background: rgba(125, 211, 252, 0.12);
+  color: var(--text);
+}
+
+.footerSpace {
+  padding-top: 14px;
+}
+
+.footerNote {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.fullscreen {
+  min-height: calc(100vh - 88px);
+  display: grid;
+  place-items: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.spinner {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 3px solid rgba(255, 255, 255, 0.16);
+  border-top-color: rgba(125, 211, 252, 0.8);
+  animation: spin 900ms linear infinite;
+}
+
+.spinner.small {
+  width: 22px;
+  height: 22px;
+  border-width: 2px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.softOverlay {
+  position: absolute;
+  inset: 16px;
+  border-radius: 20px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.errorTitle {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.errorBody {
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 60ch;
+}
+
+.mobileOnly {
+  display: none;
+}
+
+/* Favorites */
+.favOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.favBackdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  border: none;
+  z-index: 0;
+}
+
+.favPanel {
+  position: relative;
+  margin-left: auto;
+  width: min(480px, 92vw);
+  height: 100%;
+  background: rgba(20, 20, 20, 0.92);
+  border-left: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1;
+}
+
+.favHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.favTitle {
+  margin: 0;
+  font-size: 18px;
+}
+
+.favEmpty {
+  color: var(--muted);
+  padding: 18px 6px;
+}
+
+.favList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+  overflow: auto;
+}
+
+.favItem {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.favPick {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 10px;
+  align-items: center;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.favThumb {
+  width: 64px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.favItemTitle {
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+
+.favItemMeta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.favRemove {
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.16);
+  color: rgba(255, 255, 255, 0.86);
+  cursor: pointer;
+  align-self: center;
+}
+
+/* Mobile layout */
+@media (max-width: 920px) {
+  .shell {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .sidebar {
+    position: relative;
+    top: 0;
+    height: auto;
+    display: none;
+  }
+
+  .sidebar.open {
+    display: flex;
+  }
+
+  .mobileOnly {
+    display: inline-flex;
+  }
+
+  .cardWrap {
+    min-height: 620px;
+  }
+}
+

@@ -1,0 +1,19 @@
+{
+  "name": "news-reader",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "npm@10",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "server:install": "npm install",
+    "server:dev": "npm --prefix server run dev",
+    "web:dev": "npm --prefix web run dev",
+    "dev": "concurrently -n server,web -c green,cyan \"npm run server:dev\" \"npm run web:dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
