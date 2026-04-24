@@ -23,9 +23,8 @@ app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
 });
 
-function pickQueryString({ page, categories, search, token }) {
+function pickQueryString({ page, categories, search }) {
   const url = new URL(API_BASE);
-  url.searchParams.set("api_token", token);
   url.searchParams.set("language", LANGUAGE);
   url.searchParams.set("limit", String(LIMIT));
   url.searchParams.set("page", String(page));
@@ -33,43 +32,11 @@ function pickQueryString({ page, categories, search, token }) {
   const searchTrimmed = typeof search === "string" ? search.trim() : "";
   if (searchTrimmed) {
     url.searchParams.set("search", searchTrimmed);
-    url.searchParams.set("sort", "relevance_score");
   } else if (typeof categories === "string" && categories.trim()) {
     url.searchParams.set("categories", categories.trim());
-    url.searchParams.set("sort", "published_at");
   }
 
   return url;
-}
-
-// Category normalization map: map variant names (including Spanish) to canonical keys
-const CATEGORY_MAP = {
-  tech: ["tech", "technology", "tecnologia", "tecnologías"],
-  general: ["general", "noticias"],
-  science: ["science", "ciencia", "científico"],
-  sports: ["sports", "deportes"],
-  business: ["business", "negocios"],
-  health: ["health", "salud"],
-  entertainment: ["entertainment", "entretenimiento"],
-  politics: ["politics", "politica", "política", "political"],
-  food: ["food", "comida", "gastronomia", "gastronomía"],
-  travel: ["travel", "viaje", "viajes", "turismo"],
-};
-
-function stripDiacritics(s) {
-  return String(s || "").normalize("NFD").replace(/\p{Diacritic}/gu, "");
-}
-
-function toCanonicalName(raw) {
-  const low = stripDiacritics(String(raw || "").toLowerCase()).trim();
-  if (!low) return "";
-  for (const [canon, variants] of Object.entries(CATEGORY_MAP)) {
-    for (const v of variants) {
-      if (stripDiacritics(v).toLowerCase() === low) return canon;
-    }
-  }
-  // fallback: return normalized token (may not match canonical set)
-  return low;
 }
 
 app.get("/api/news/all", async (req, res) => {
@@ -84,10 +51,10 @@ app.get("/api/news/all", async (req, res) => {
   const categories = String(req.query.categories ?? "");
   const search = String(req.query.search ?? "");
 
-  const upstreamUrl = pickQueryString({ page, categories, search, token });
+  const upstreamUrl = pickQueryString({ page, categories, search });
 
   // Debug: log proxy URL without token
-  console.log(`[proxy] GET ${upstreamUrl.toString().replace(token, "***")}`);
+  console.log(`[proxy] GET ${upstreamUrl.toString()}`);
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -95,6 +62,9 @@ app.get("/api/news/all", async (req, res) => {
   try {
     const upstreamRes = await fetch(upstreamUrl.toString(), {
       method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       signal: controller.signal,
     });
 
@@ -112,41 +82,6 @@ app.get("/api/news/all", async (req, res) => {
               status,
             }
       );
-    }
-
-    // If the response is JSON and we requested a specific category (no search),
-    // filter the returned page of articles to only those that include the
-    // requested category in their `categories` array. This prevents articles
-    // from other categories from appearing in a category view due to upstream
-    // tagging inconsistencies.
-    if (isJson && body && typeof body === "object" && Array.isArray(body.data) && categories) {
-      try {
-        const requested = String(categories)
-          .split(",")
-          .map((s) => toCanonicalName(s))
-          .filter(Boolean);
-
-        if (requested.length > 0) {
-          const originalCount = Array.isArray(body.data) ? body.data.length : 0;
-          body.data = body.data.filter((a) => {
-            const cats = (Array.isArray(a.categories) ? a.categories : [])
-              .map((x) => toCanonicalName(x));
-            // keep article if any of its canonical categories matches any requested canonical category
-            return requested.some((rc) => cats.includes(rc));
-          });
-          // update returned count to reflect filtered page
-          if (body.meta && typeof body.meta === "object") {
-            body.meta.returned = Array.isArray(body.data) ? body.data.length : 0;
-            // expose how many items were removed by the proxy filter
-            body.meta.filtered = Math.max(0, originalCount - (Array.isArray(body.data) ? body.data.length : 0));
-          }
-          console.log(`[proxy] filtered category=${categories} ${originalCount} -> ${body.data.length}`);
-        }
-      } catch (e) {
-        // non-fatal: if filtering fails, return original body
-        // eslint-disable-next-line no-console
-        console.warn("[proxy] category filtering failed", e);
-      }
     }
 
     return res.json(body);

@@ -1,5 +1,3 @@
-import { useI18n } from "../i18n";
-
 type Props = {
   currentPage: number;
   totalPages: number;
@@ -15,20 +13,19 @@ type Props = {
 };
 
 export default function Paginator({ currentPage, totalPages, onNext, onPrev, onFirst, middle }: Props) {
-  const { t } = useI18n();
   const nextDisabled = currentPage === totalPages || totalPages === 0;
   const prevDisabled = currentPage <= 1;
 
   return (
-    <nav className="paginator" aria-label={t("paginator.aria")}>
-      <button type="button" className="pgBtn" onClick={onFirst} disabled={prevDisabled} aria-label={t("paginator.first")}>
+    <nav className="paginator" aria-label="Paginación">
+      <button type="button" className="pgBtn" onClick={onFirst} disabled={prevDisabled} aria-label="Primera página">
         «
       </button>
-      <button type="button" className="pgBtn" onClick={onPrev} disabled={prevDisabled} aria-label={t("paginator.prev")}>
+      <button type="button" className="pgBtn" onClick={onPrev} disabled={prevDisabled} aria-label="Anterior">
         ‹
       </button>
 
-      <div className="pgMid" role="group" aria-label={t("paginator.group")}>
+      <div className="pgMid" role="group" aria-label="Artículos en página">
         {(middle || []).map((m) => (
           <button
             key={m.label}
@@ -42,7 +39,7 @@ export default function Paginator({ currentPage, totalPages, onNext, onPrev, onF
         ))}
       </div>
 
-      <button type="button" className="pgBtn" onClick={onNext} disabled={nextDisabled} aria-label={t("paginator.next")}>
+      <button type="button" className="pgBtn" onClick={onNext} disabled={nextDisabled} aria-label="Siguiente">
         ›
       </button>
     </nav>

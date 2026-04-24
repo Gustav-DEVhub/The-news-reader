@@ -90,10 +90,8 @@ body {
 }
 
 .sidebar {
-  /* Use a slightly darker, more solid background to avoid a visible
-     lighter strip appearing when scrolling. Keep a subtle border. */
-  background: rgba(20, 20, 20, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--panel);
+  border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: var(--shadow);
   padding: 14px;
@@ -103,13 +101,7 @@ body {
   position: sticky;
   top: 72px;
   height: calc(100vh - 88px);
-  overflow: hidden;
-}
-
-.sidebarBody {
-  flex: 1 1 auto;
   overflow: auto;
-  padding-right: 6px; /* give small room for scrollbar */
 }
 
 .label {
@@ -175,18 +167,8 @@ body {
 
 .sidebarFooter {
   margin-top: auto;
-  /* sticky footer that stays within the sidebar bounds */
-  position: sticky;
-  bottom: 0;
-  padding: 14px 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-  /* match the sidebar background so no contrasting strip appears */
-  background: rgba(20, 20, 20, 0.92);
-  margin-left: 0;
-  margin-right: 0;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-  box-shadow: none;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .wide {
@@ -199,18 +181,10 @@ body {
   flex-direction: column;
 }
 
-.content {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 88px);
-}
-
 .cardWrap {
   position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
-  height: 100%;
+  flex: 1;
+  min-height: 520px;
 }
 
 .card {
@@ -336,11 +310,10 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  /* use a darker background to blend with the main card and avoid a light strip */
-  background: rgba(20, 20, 20, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--panel);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  box-shadow: none;
+  box-shadow: var(--shadow);
 }
 
 .pgBtn {
@@ -377,27 +350,8 @@ body {
   color: var(--text);
 }
 
-.pgDot {
-  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
-}
-
-.pgDot:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-  background: rgba(0,0,0,0.18);
-}
-
 .footerSpace {
   padding-top: 14px;
-}
-
-.footerNote {
-  margin-top: 8px;
-  font-size: 13px;
-  color: var(--muted);
-  display: flex;
-  justify-content: center;
-  gap: 8px;
 }
 
 .fullscreen {
@@ -456,52 +410,6 @@ body {
   display: none;
 }
 
-.desktopOnly {
-  display: inline-flex;
-}
-
-.langToggle {
-  height: 36px;
-  padding: 0 10px;
-  border-radius: 10px;
-  font-weight: 700;
-}
-
-.langMenu {
-  position: absolute;
-  right: 100%;
-  top: 50%;
-  transform: translateY(-50%) translateX(6px) scale(0.98);
-  display: flex;
-  flex-direction: row; /* horizontal bar */
-  gap: 8px;
-  padding: 6px;
-  background: rgba(20,20,20,0.98);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 180ms cubic-bezier(.2,.9,.2,1), opacity 160ms ease;
-  z-index: 60;
-  white-space: nowrap;
-  max-width: 320px;
-  overflow-x: auto;
-}
-
-.langMenu.open {
-  transform: translateY(-50%) translateX(0) scale(1);
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.langMenu .btn {
-  min-width: 90px;
-  padding: 6px 10px;
-  justify-content: center;
-  border-radius: 8px;
-}
-
 /* Favorites */
 .favOverlay {
   position: fixed;
@@ -516,7 +424,6 @@ body {
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
   border: none;
-  z-index: 0;
 }
 
 .favPanel {
@@ -532,7 +439,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  z-index: 1;
 }
 
 .favHeader {
@@ -635,39 +541,8 @@ body {
     display: inline-flex;
   }
 
-  .desktopOnly {
-    display: none;
-  }
-
   .cardWrap {
-    min-height: 480px;
-  }
-
-  /* make language menu shorter on mobile to avoid overlapping header title */
-  .langMenu {
-    right: auto;
-    left: 8px; /* keep near left side so it doesn't cover brand */
-    top: calc(100% + 8px);
-    transform: translateY(0) translateX(0) scale(0.98);
-    max-width: 220px;
-    overflow-x: auto;
-    padding: 6px 8px;
-  }
-
-  .langMenu .btn {
-    min-width: 70px;
-    padding: 6px 8px;
-  }
-
-  /* hide default scrollbars on mobile while preserving scroll behavior */
-  html, body {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  html::-webkit-scrollbar, body::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
+    min-height: 620px;
   }
 }
 

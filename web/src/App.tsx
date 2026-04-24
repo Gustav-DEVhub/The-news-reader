@@ -2,8 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import ArticleCard from "./components/ArticleCard";
 import FavoritesSidebar, { readFavorites, writeFavorites } from "./components/FavoritesSidebar";
 import Paginator from "./components/Paginator";
-import LanguageToggle from "./components/LanguageToggle";
-import { useI18n } from "./i18n";
 import {
   DEFAULT_CATEGORY,
   LIMIT,
@@ -71,8 +69,6 @@ export default function App() {
   const safeIndex = clamp(currentIndex, 0, Math.max(0, pageArticles.length - 1));
   const article = pageArticles[safeIndex];
   const absoluteStart = (page - 1) * LIMIT;
-
-  const { t, lang, langDisplay } = useI18n();
 
   async function loadPage(
     nextPage: number,
@@ -239,13 +235,13 @@ export default function App() {
       return {
         label: String(abs),
         active: idx === safeIndex,
-        ariaLabel: lang === "es" ? `Artículo ${abs}` : `Article ${abs}`,
+        ariaLabel: `Artículo ${abs}`,
         onClick: () => setCurrentIndex(idx),
       };
     });
   }, [absoluteStart, pageArticles, safeIndex]);
 
-  const categories: Category[] = ([
+  const categories: Category[] = [
     "tech",
     "general",
     "science",
@@ -256,11 +252,7 @@ export default function App() {
     "politics",
     "food",
     "travel",
-  ] as Category[])
-    .slice()
-    .sort((a, b) => a.localeCompare(b));
-
-  const CATEGORY_LABELS = (c: Category) => t(`category.${c}`);
+  ];
 
   const isFavorite = article ? favoritesUrlSet.has(article.url) : false;
 
@@ -271,19 +263,15 @@ export default function App() {
           <span className="brandMark" aria-hidden="true">
             N
           </span>
-          <span className="brandText">{t("brand")}</span>
+          <span className="brandText">News Reader</span>
         </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <LanguageToggle />
-          <button type="button" className="btn ghost mobileOnly" onClick={() => setFiltersOpen((x) => !x)}>
-            {filtersOpen ? t("filters.hide") : t("filters.show")}
-          </button>
-        </div>
+        <button type="button" className="btn ghost mobileOnly" onClick={() => setFiltersOpen((x) => !x)}>
+          {filtersOpen ? "Hide Filters" : "Show Filters"}
+        </button>
       </header>
 
       <div className="shell">
         <aside className={`sidebar ${filtersOpen ? "open" : ""}`} aria-label="Filtros">
-          <div className="sidebarBody">
           <form
             className="searchBox"
             onSubmit={(e) => {
@@ -292,7 +280,7 @@ export default function App() {
             }}
           >
             <label className="label" htmlFor="search">
-              {t("search.label")}
+              Search
             </label>
             <div className="searchRow">
               <input
@@ -300,31 +288,20 @@ export default function App() {
                 className="input"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                placeholder={t("search.placeholder")}
+                placeholder="AI, Apple, ciencia…"
                 aria-label="Buscar"
               />
               <button type="submit" className="btn primary">
-                  {t("search.button")}
+                Go
               </button>
             </div>
             <div className="hint">
-              {searchValue ? (
-                t("hint.searchUsed")
-              ) : (
-                <>
-                  {t("hint.categorySelected")}
-                  {feed?.meta?.filtered ? (
-                    <span style={{ marginLeft: 8, fontSize: 12, color: "var(--accent)" }} title={`${feed.meta.filtered} items were filtered by category`}>
-                      {t("filtered", { count: String(feed.meta.filtered) })}
-                    </span>
-                  ) : null}
-                </>
-              )}
+              {searchValue ? "Using search (categories omitted)." : "Using category (search omitted)."}
             </div>
           </form>
 
-          <div className="catBox" role="group" aria-label={t("categories.label")}>
-            <div className="label">{t("categories.label")}</div>
+          <div className="catBox" role="group" aria-label="Categorías">
+            <div className="label">Categories</div>
             <div className="catGrid">
               {categories.map((c) => (
                 <button
@@ -333,16 +310,15 @@ export default function App() {
                   className={`catBtn ${!searchValue && category === c ? "active" : ""}`}
                   onClick={() => applyCategory(c)}
                 >
-                  {CATEGORY_LABELS(c) ?? c}
+                  {c}
                 </button>
               ))}
             </div>
           </div>
-          </div>
 
           <div className="sidebarFooter">
             <button type="button" className="btn ghost wide" onClick={() => setFavoritesOpen(true)}>
-              {t("favorites.button")}
+              Favorites
             </button>
           </div>
         </aside>
@@ -385,9 +361,6 @@ export default function App() {
                   onNext={goNext}
                   middle={middle}
                 />
-                <div className="footerNote" aria-hidden="true">
-                  {t("footer", { lang: langDisplay, limit: String(LIMIT) })}
-                </div>
               </div>
             </>
           ) : (
@@ -402,24 +375,7 @@ export default function App() {
         isOpen={favoritesOpen}
         onClose={() => setFavoritesOpen(false)}
         onSelect={(a) => {
-          // Open favorite inside the app: show the article as the current feed
-          const singleFeed = {
-            data: [a],
-            meta: {
-              found: 1,
-              returned: 1,
-              limit: LIMIT,
-              page: 1,
-            },
-          } as NewsApiResponse;
-
-          cacheRef.current.clear();
-          inflightRef.current.clear();
-          epochRef.current += 1;
-          setFeed(singleFeed);
-          setPage(1);
-          setCurrentIndex(0);
-          // NOTE: keep the favorites sidebar open as requested
+          window.open(a.url, "_blank", "noreferrer");
         }}
       />
     </div>

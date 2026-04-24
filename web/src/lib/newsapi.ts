@@ -30,7 +30,6 @@ export type NewsApiResponse = {
     returned: number;
     limit: number;
     page: number;
-    filtered?: number;
   };
 };
 

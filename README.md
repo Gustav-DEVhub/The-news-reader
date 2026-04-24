@@ -70,6 +70,32 @@ If you want, I can:
 
 Tell me which of those you'd like next.
 
+Deploying to Vercel (serverless proxy)
+
+This project now includes a Vercel-compatible serverless proxy at `api/news/all.js`. If you want to deploy the full-stack app on Vercel, follow these steps:
+
+1. Add your TheNewsAPI token to Vercel project environment variables:
+
+	- Key: `THENEWSAPI_TOKEN`
+	- Value: your API token
+
+2. Ensure the frontend calls the proxy at `/api/news/all` (the client already builds URLs to `/api/news/all`).
+
+3. (Optional) Add a `vercel.json` if you want explicit builds or routing. The app will usually deploy without it when Vercel detects the `web/` frontend and `api/` functions.
+
+4. Push to GitHub and import the repo into Vercel. Deploy.
+
+Notes and considerations
+
+- The serverless function uses `process.env.THENEWSAPI_TOKEN` and implements the same category normalization and defensive filtering as the original Express server.
+- Serverless functions have timeouts and no persistent in-memory cache; consider adding caching (CDN or external cache) if you need to reduce upstream calls.
+- Do NOT commit your `.env` file to Git.
+
+If you want, I can:
+
+- Convert any remaining server logic into additional API routes under `api/`.
+- Add a `vercel.json` and a deployment checklist and test using `vercel dev` locally.
+
 ---
 
 Latest changes (summary)
