@@ -1,0 +1,9 @@
+{
+  "framework": null,
+  "buildCommand": "npm run build --workspace=web",
+  "outputDirectory": "web/dist",
+  "routes": [
+    { "src": "/api/news/all", "dest": "/api/news/all" },
+    { "handle": "filesystem" }
+  ]
+}
