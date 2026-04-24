@@ -8,6 +8,8 @@
     "web"
   ],
   "scripts": {
+    "install": "npm install --prefix web",
+    "build": "npm run build --prefix web",
     "server:install": "npm install",
     "server:dev": "npm --prefix server run dev",
     "web:dev": "npm --prefix web run dev",

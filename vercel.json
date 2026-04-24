@@ -1,7 +1,14 @@
 {
-  "framework": null,
-  "buildCommand": "npm run build --workspace=web",
-  "outputDirectory": "web/dist",
+  "builds": [
+    {
+      "src": "web",
+      "use": "@vercel/static-build",
+      "config": {
+        "buildCommand": "cd web && npm install && npm run build",
+        "distDir": "dist"
+      }
+    }
+  ],
   "routes": [
     { "src": "/api/news/all", "dest": "/api/news/all" },
     { "handle": "filesystem" }
