@@ -282,10 +282,11 @@ body {
 .cardTitle {
   margin: 0;
   font-size: clamp(28px, 3vw, 44px); /* Tamaño ligeramente disminuido */
-  line-height: 1.15;
+  line-height: 1.25; /* Interlineado subido ligeramente para que no se corten las letras abajo */
+  padding-bottom: 4px; /* Espacio extra para que no se corte la g, p, q */
   display: -webkit-box;
   -webkit-line-clamp: 4;
-  line-clamp: 4;
+  /* line-clamp: 4; Removido porque rompe la compatibilidad en producción (Vercel) */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
@@ -300,7 +301,6 @@ body {
   max-width: 100%;
   display: -webkit-box;
   -webkit-line-clamp: 4;
-  line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -752,7 +752,6 @@ body {
     line-height: 1.2; /* Interlineado más compacto */
     display: -webkit-box;
     -webkit-line-clamp: 3; /* Evita que títulos larguísimos (clickbait) cubran toda la pantalla */
-    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -761,7 +760,6 @@ body {
     font-size: 13px; /* Letra un punto más pequeña para que estorbe menos */
     line-height: 1.35;
     -webkit-line-clamp: 2; /* Limitado estrictamente a 2 líneas */
-    line-clamp: 2;
   }
 
   .cardActions {
