@@ -206,16 +206,18 @@ body {
 }
 
 .card {
-  flex: 1;
-  min-height: 0;
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  background: rgba(0, 0, 0, 0.20);
-  box-shadow: var(--shadow);
+  position: relative;
+  background: var(--surface);
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 480px; /* Garantiza que siempre quepa el texto y los botones */
+  height: 60vh;
+  max-height: 600px;
   display: flex;
   flex-direction: column;
-  position: relative;
-  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .cardMedia {
