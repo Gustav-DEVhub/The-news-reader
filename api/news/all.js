@@ -1,12 +1,12 @@
 const API_BASE = "https://api.thenewsapi.com/v1/news/all";
 const LIMIT = 3;
-const LANGUAGE = "es";
+const DEFAULT_LANGUAGE = "es";
 const REQUEST_TIMEOUT_MS = 10_000;
 
-function pickQueryString({ page, categories, search, token }) {
+function pickQueryString({ page, categories, search, token, language }) {
   const url = new URL(API_BASE);
   url.searchParams.set("api_token", token);
-  url.searchParams.set("language", LANGUAGE);
+  url.searchParams.set("language", language || DEFAULT_LANGUAGE);
   url.searchParams.set("limit", String(LIMIT));
   url.searchParams.set("page", String(page));
 
@@ -59,8 +59,10 @@ module.exports = async function handler(req, res) {
   const page = Math.max(1, Number.parseInt(String(req.query.page ?? "1"), 10) || 1);
   const categories = String(req.query.categories ?? "");
   const search = String(req.query.search ?? "");
+  const languageRaw = String(req.query.language ?? DEFAULT_LANGUAGE).trim().toLowerCase();
+  const language = languageRaw === "en" || languageRaw === "es" || languageRaw === "it" ? languageRaw : DEFAULT_LANGUAGE;
 
-  const upstreamUrl = pickQueryString({ page, categories, search, token });
+  const upstreamUrl = pickQueryString({ page, categories, search, token, language });
   console.log(`[vercel-proxy] GET ${upstreamUrl.toString().replace(token, "***")}`);
 
   const controller = new AbortController();

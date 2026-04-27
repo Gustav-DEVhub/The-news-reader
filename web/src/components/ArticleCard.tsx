@@ -4,9 +4,13 @@ type Props = {
   article: NewsArticle;
   isFavorite: boolean;
   onToggleFavorite: () => void;
+  publishedText?: string;
+  ctaView: string;
+  ctaSave: string;
+  ctaSaved: string;
 };
 
-export default function ArticleCard({ article, isFavorite, onToggleFavorite }: Props) {
+export default function ArticleCard({ article, isFavorite, onToggleFavorite, publishedText, ctaView, ctaSave, ctaSaved }: Props) {
   const title = article.title || "Untitled";
   const imageSrc = article.image_url || "/placeholder.png";
   const alt = article.title ? `Imagen de: ${article.title}` : "Imagen de noticia";
@@ -19,19 +23,17 @@ export default function ArticleCard({ article, isFavorite, onToggleFavorite }: P
       </div>
 
       <div className="cardOverlay">
+        <h2 className="cardTitle">{title}</h2>
+        <p className="cardDesc">{article.description || article.snippet || "Sin descripción."}</p>
+
         <div className="cardMeta">
           <span className="pill">{article.source || "TheNewsApi"}</span>
-          {article.published_at ? (
-            <span className="muted">{new Date(article.published_at).toLocaleString("es-ES")}</span>
-          ) : null}
+          {publishedText ? <span className="muted">{publishedText}</span> : null}
         </div>
-
-        <h1 className="cardTitle">{title}</h1>
-        <p className="cardDesc">{article.description || article.snippet || "Sin descripción."}</p>
 
         <div className="cardActions">
           <a className="btn primary" href={article.url} target="_blank" rel="noreferrer">
-            View Full Article
+            {ctaView}
           </a>
           <button
             type="button"
@@ -39,7 +41,7 @@ export default function ArticleCard({ article, isFavorite, onToggleFavorite }: P
             onClick={onToggleFavorite}
             aria-pressed={isFavorite}
           >
-            {isFavorite ? "Saved" : "Save to Favorites"}
+            {isFavorite ? ctaSaved : ctaSave}
           </button>
         </div>
       </div>

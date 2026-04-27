@@ -18,7 +18,7 @@ PORT=5177
 npm run dev
 ```
 
-- Server runs on `http://localhost:5177`
+- Server runs on `http://localhost:5177` (configurable via `PORT` in `server/.env`)
 - Web on `http://localhost:5176`
 - Server must start first; client connects to `/api/*`
 
@@ -51,6 +51,6 @@ No test framework configured.
 
 ## Gotchas
 
-- Vite runs on port 5176, Express on 5177
+- Vite runs on port 5176, Express on 5177 (reads `PORT` from `server/.env`, defaults to 5177)
 - Server must be running first for frontend to work
 - Favicon at `web/public/favicon.png` - restart Vite after replacing

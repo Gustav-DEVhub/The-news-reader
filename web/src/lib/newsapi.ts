@@ -34,8 +34,8 @@ export type NewsApiResponse = {
 };
 
 export type FetchParams =
-  | { page: number; category: Category; search?: "" }
-  | { page: number; search: string; category?: Category };
+  | { page: number; category: Category; search?: ""; language?: string }
+  | { page: number; search: string; category?: Category; language?: string };
 
 export type ApiErrorKind = "rate_limit" | "auth" | "timeout_or_server" | "unknown";
 
@@ -51,6 +51,7 @@ export const DEFAULT_CATEGORY: Category = "tech";
 export function buildProxyUrl(params: FetchParams): string {
   const url = new URL("/api/news/all", window.location.origin);
   url.searchParams.set("page", String(params.page));
+  if (params.language) url.searchParams.set("language", params.language);
 
   const searchRaw = "search" in params ? (params.search ?? "") : "";
   const hasSearch = searchRaw.trim().length > 0;

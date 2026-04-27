@@ -4,6 +4,10 @@ type Props = {
   onNext: () => void;
   onPrev: () => void;
   onFirst: () => void;
+  ariaLabel?: string;
+  firstLabel?: string;
+  prevLabel?: string;
+  nextLabel?: string;
   middle?: Array<{
     label: string;
     active?: boolean;
@@ -12,16 +16,33 @@ type Props = {
   }>;
 };
 
-export default function Paginator({ currentPage, totalPages, onNext, onPrev, onFirst, middle }: Props) {
+export default function Paginator({
+  currentPage,
+  totalPages,
+  onNext,
+  onPrev,
+  onFirst,
+  middle,
+  ariaLabel,
+  firstLabel,
+  prevLabel,
+  nextLabel,
+}: Props) {
   const nextDisabled = currentPage === totalPages || totalPages === 0;
   const prevDisabled = currentPage <= 1;
 
   return (
-    <nav className="paginator" aria-label="Paginación">
-      <button type="button" className="pgBtn" onClick={onFirst} disabled={prevDisabled} aria-label="Primera página">
+    <nav className="paginator" aria-label={ariaLabel || "Paginación"}>
+      <button
+        type="button"
+        className="pgBtn"
+        onClick={onFirst}
+        disabled={prevDisabled}
+        aria-label={firstLabel || "Primera página"}
+      >
         «
       </button>
-      <button type="button" className="pgBtn" onClick={onPrev} disabled={prevDisabled} aria-label="Anterior">
+      <button type="button" className="pgBtn" onClick={onPrev} disabled={prevDisabled} aria-label={prevLabel || "Anterior"}>
         ‹
       </button>
 
@@ -39,7 +60,7 @@ export default function Paginator({ currentPage, totalPages, onNext, onPrev, onF
         ))}
       </div>
 
-      <button type="button" className="pgBtn" onClick={onNext} disabled={nextDisabled} aria-label="Siguiente">
+      <button type="button" className="pgBtn" onClick={onNext} disabled={nextDisabled} aria-label={nextLabel || "Siguiente"}>
         ›
       </button>
     </nav>

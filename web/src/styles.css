@@ -19,6 +19,7 @@
 html,
 body {
   height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -40,7 +41,7 @@ body {
 }
 
 .app {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -57,6 +58,13 @@ body {
   position: sticky;
   top: 0;
   z-index: 20;
+  flex-shrink: 0;
+}
+
+.topActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .brand {
@@ -87,6 +95,8 @@ body {
   grid-template-columns: 320px 1fr;
   gap: 16px;
   padding: 16px;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -98,10 +108,12 @@ body {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  position: sticky;
-  top: 72px;
-  height: calc(100vh - 88px);
-  overflow: auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.filtersBackdrop {
+  display: none;
 }
 
 .label {
@@ -169,6 +181,7 @@ body {
   margin-top: auto;
   padding-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
 }
 
 .wide {
@@ -179,27 +192,37 @@ body {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .cardWrap {
   position: relative;
   flex: 1;
-  min-height: 520px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .card {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   border-radius: 20px;
   border: 1px solid var(--border);
-  overflow: hidden;
   background: rgba(0, 0, 0, 0.20);
   box-shadow: var(--shadow);
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
 
 .cardMedia {
-  position: relative;
-  height: 100%;
+  position: absolute;
+  inset: 0;
+  background: #111;
+  z-index: 1;
 }
 
 .cardImg {
@@ -207,30 +230,41 @@ body {
   height: 100%;
   object-fit: cover;
   display: block;
-  filter: saturate(1.05) contrast(1.05);
 }
 
 .cardShade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.80));
+  display: none; /* Oculto en desktop, el fondo sólido lo lleva cardOverlay */
 }
 
 .cardOverlay {
   position: absolute;
-  left: 0;
-  right: 0;
+  top: 0;
   bottom: 0;
-  padding: 18px 18px 16px 18px;
-  display: grid;
-  gap: 10px;
+  left: 0;
+  width: 42%; /* Retraído hacia la izquierda */
+  min-width: 340px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Empuja el texto hacia arriba */
+  gap: 20px;
+  z-index: 3;
+  /* Panel oscuro translúcido natural (sin desenfoque) */
+  background: rgba(12, 12, 16, 0.82); /* Suficientemente oscuro para leer bien */
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  transition: background 0.4s ease;
+}
+
+.cardOverlay:hover {
+  background: rgba(12, 12, 16, 0.88); /* Ligeramente más oscuro al pasar el ratón */
 }
 
 .cardMeta {
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: flex-start;
+  gap: 16px;
   align-items: center;
+  margin-top: 4px;
 }
 
 .pill {
@@ -247,22 +281,35 @@ body {
 
 .cardTitle {
   margin: 0;
-  font-size: clamp(22px, 2.2vw, 34px);
-  line-height: 1.12;
+  font-size: clamp(28px, 3vw, 44px); /* Tamaño ligeramente disminuido */
+  line-height: 1.15;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 }
 
 .cardDesc {
   margin: 0;
-  color: rgba(255, 255, 255, 0.86);
-  line-height: 1.45;
-  max-width: 70ch;
+  color: rgba(255, 255, 255, 0.90);
+  line-height: 1.6; /* Formato de redacción más elegante y espaciado */
+  font-weight: 300;
+  letter-spacing: 0.3px;
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .cardActions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 8px;
+  margin-top: auto; /* Pinta los botones al fondo del contenedor */
 }
 
 .btn {
@@ -281,6 +328,7 @@ body {
   gap: 8px;
   text-decoration: none;
   transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+  white-space: nowrap;
 }
 
 .btn:hover {
@@ -306,6 +354,7 @@ body {
 
 .paginator {
   height: 56px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -342,6 +391,13 @@ body {
   color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
   font-weight: 700;
+  transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+
+.pgDot:hover {
+  transform: translateY(-1px) scale(1.03);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .pgDot.active {
@@ -352,10 +408,11 @@ body {
 
 .footerSpace {
   padding-top: 14px;
+  flex-shrink: 0;
 }
 
 .fullscreen {
-  min-height: calc(100vh - 88px);
+  height: 100%;
   display: grid;
   place-items: center;
   gap: 12px;
@@ -406,8 +463,95 @@ body {
   max-width: 60ch;
 }
 
+/* Language menu */
+.langRoot {
+  position: relative;
+  display: inline-flex;
+}
+
+.langBtn {
+  padding: 0 12px;
+}
+
+.langBtn.compact {
+  width: 44px;
+  padding: 0;
+}
+
+.langArrow {
+  display: inline-block;
+  font-size: 18px;
+  transition: transform 180ms ease;
+}
+
+.langBtn.open .langArrow {
+  transform: translateX(-2px) rotate(-90deg);
+}
+
+.langText {
+  font-weight: 700;
+}
+
+.langStrong {
+  font-weight: 900;
+}
+
+.langMenu {
+  position: absolute;
+  right: 0;
+  top: 44px;
+  min-width: 190px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(20, 20, 20, 0.92);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+  padding: 8px;
+  display: grid;
+  gap: 6px;
+  transform-origin: top right;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+  z-index: 40;
+}
+
+.langMenu.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.langItem {
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.18);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 800;
+  text-align: left;
+  padding: 0 12px;
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.langItem:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.langItem.active {
+  border-color: rgba(125, 211, 252, 0.55);
+  background: rgba(125, 211, 252, 0.12);
+}
+
 .mobileOnly {
   display: none;
+}
+
+.desktopOnly {
+  display: inline-flex;
 }
 
 /* Favorites */
@@ -428,6 +572,7 @@ body {
 
 .favPanel {
   position: relative;
+  z-index: 51;
   margin-left: auto;
   width: min(480px, 92vw);
   height: 100%;
@@ -524,25 +669,113 @@ body {
   .shell {
     grid-template-columns: 1fr;
     padding: 12px;
+    height: calc(100vh - 56px);
   }
 
   .sidebar {
-    position: relative;
-    top: 0;
-    height: auto;
+    position: fixed;
+    left: 12px;
+    top: 68px;
+    bottom: 12px;
+    width: min(360px, calc(100vw - 24px));
     display: none;
+    overflow: hidden;
+    z-index: 35;
+    /* Opaque background — prevents the article card from bleeding through */
+    background: rgba(18, 18, 24, 0.97);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.70);
   }
 
   .sidebar.open {
     display: flex;
   }
 
+  .filtersBackdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.52);
+    border: none;
+    z-index: 30;
+  }
+
   .mobileOnly {
     display: inline-flex;
   }
 
+  .desktopOnly {
+    display: none;
+  }
+
   .cardWrap {
-    min-height: 620px;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  .cardShade {
+    display: block; /* Lo mostramos de nuevo en móvil */
+    position: absolute;
+    inset: 0;
+    /* Oscuro arriba (texto), transparente en el centro (foto), oscuro abajo (botones) */
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.10) 40%, rgba(0, 0, 0, 0.10) 70%, rgba(0, 0, 0, 0.85) 100%);
+    z-index: 2;
+  }
+
+  .cardOverlay {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    padding: 16px 14px 14px;
+    gap: 8px;
+    margin: 0;
+    flex: 1; /* Se estira para ocupar toda la altura de la tarjeta */
+    justify-content: flex-start;
+    /* Limpiar estilos del panel de desktop */
+    background: transparent;
+    border-right: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  .cardOverlay:hover {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .cardTitle {
+    font-size: clamp(17px, 4.5vw, 24px); /* Ligeramente más pequeño */
+    line-height: 1.2; /* Interlineado más compacto */
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Evita que títulos larguísimos (clickbait) cubran toda la pantalla */
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .cardDesc {
+    font-size: 13px; /* Letra un punto más pequeña para que estorbe menos */
+    line-height: 1.35;
+    -webkit-line-clamp: 2; /* Limitado estrictamente a 2 líneas */
+    line-clamp: 2;
+  }
+
+  .cardActions {
+    flex-direction: row; /* Botones uno al lado del otro */
+    gap: 8px;
+    margin-top: auto; /* ¡Empuja los botones hacia el fondo absoluto de la tarjeta! */
+  }
+
+  .cardActions .btn {
+    flex: 1; /* Ocupan 50% cada uno */
+    width: auto;
+    height: 32px; /* Más delgados y acoplados */
+    justify-content: center;
+    font-size: 13px; /* Texto compacto */
+    padding: 0 8px;
   }
 }
-

@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ArticleCard from "./components/ArticleCard";
 import FavoritesSidebar, { readFavorites, writeFavorites } from "./components/FavoritesSidebar";
+import LanguageMenu from "./components/LanguageMenu";
 import Paginator from "./components/Paginator";
+import { readLanguage, t, toLocale, type Language, writeLanguage, CATEGORIES, CATEGORY_KEYS } from "./i18n/index";
 import {
   DEFAULT_CATEGORY,
   LIMIT,
@@ -13,10 +15,10 @@ import {
 
 type CacheKey = string;
 
-function makeCacheKey(category: Category, search: string, page: number): CacheKey {
+function makeCacheKey(language: Language, category: Category, search: string, page: number): CacheKey {
   const q = search.trim();
   const base = q ? q : category;
-  return `${base}-${page}`;
+  return `${language}-${base}-${page}`;
 }
 
 function clamp(n: number, min: number, max: number) {
@@ -39,6 +41,7 @@ export default function App() {
   const [category, setCategory] = useState<Category>(DEFAULT_CATEGORY);
   const [searchInput, setSearchInput] = useState("");
   const searchValue = searchInput.trim();
+  const [language, setLanguage] = useState<Language>(() => readLanguage());
 
   const [page, setPage] = useState(1);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -69,12 +72,21 @@ export default function App() {
   const safeIndex = clamp(currentIndex, 0, Math.max(0, pageArticles.length - 1));
   const article = pageArticles[safeIndex];
   const absoluteStart = (page - 1) * LIMIT;
+  const locale = toLocale(language);
+  const publishedText = useMemo(() => {
+    if (!article?.published_at) return undefined;
+    try {
+      return new Intl.DateTimeFormat(locale, { dateStyle: "short", timeStyle: "short" }).format(new Date(article.published_at));
+    } catch {
+      return undefined;
+    }
+  }, [article?.published_at, locale]);
 
   async function loadPage(
     nextPage: number,
-    opts: { hard: boolean; index: number; category: Category; search: string }
+    opts: { hard: boolean; index: number; category: Category; search: string; language: Language }
   ) {
-    const key = makeCacheKey(opts.category, opts.search, nextPage);
+    const key = makeCacheKey(opts.language, opts.category, opts.search, nextPage);
 
     if (opts.hard) {
       epochRef.current += 1;
@@ -107,8 +119,8 @@ export default function App() {
         inflightRef.current.get(key) ||
         fetchAllNews(
           opts.search.trim()
-            ? { page: nextPage, search: opts.search.trim() }
-            : { page: nextPage, category: opts.category, search: "" },
+            ? { page: nextPage, search: opts.search.trim(), language: opts.language }
+            : { page: nextPage, category: opts.category, search: "", language: opts.language },
           controller.signal
         );
 
@@ -133,19 +145,19 @@ export default function App() {
     }
   }
 
-  async function prefetch(nextPage: number, opts: { category: Category; search: string }) {
+  async function prefetch(nextPage: number, opts: { category: Category; search: string; language: Language }) {
     if (nextPage < 1) return;
     if (totalPages && nextPage > totalPages) return;
 
     const myEpoch = epochRef.current;
-    const key = makeCacheKey(opts.category, opts.search, nextPage);
+    const key = makeCacheKey(opts.language, opts.category, opts.search, nextPage);
     if (cacheRef.current.has(key)) return;
     if (inflightRef.current.has(key)) return;
 
     const promise = fetchAllNews(
       opts.search.trim()
-        ? { page: nextPage, search: opts.search.trim() }
-        : { page: nextPage, category: opts.category, search: "" }
+        ? { page: nextPage, search: opts.search.trim(), language: opts.language }
+        : { page: nextPage, category: opts.category, search: "", language: opts.language }
     );
 
     inflightRef.current.set(key, promise);
@@ -172,17 +184,21 @@ export default function App() {
   }
 
   useEffect(() => {
-    void loadPage(1, { hard: true, index: 0, category: DEFAULT_CATEGORY, search: "" });
+    void loadPage(1, { hard: true, index: 0, category: DEFAULT_CATEGORY, search: "", language });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
+  useEffect(() => {
     if (!feed) return;
     if (currentIndex === 1 && page < totalPages) {
-      void prefetch(page + 1, { category, search: searchValue });
+      void prefetch(page + 1, { category, search: searchValue, language });
     }
     if (currentIndex === 0 && page > 1) {
-      void prefetch(page - 1, { category, search: searchValue });
+      void prefetch(page - 1, { category, search: searchValue, language });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, page, totalPages, feed]);
@@ -194,7 +210,7 @@ export default function App() {
     setPage(1);
     setCurrentIndex(0);
     setFiltersOpen(false);
-    void loadPage(1, { hard: true, index: 0, category: next, search: nextSearch });
+    void loadPage(1, { hard: true, index: 0, category: next, search: nextSearch, language });
   }
 
   function applySearch() {
@@ -202,11 +218,11 @@ export default function App() {
     setPage(1);
     setCurrentIndex(0);
     setFiltersOpen(false);
-    void loadPage(1, { hard: true, index: 0, category, search: nextSearch });
+    void loadPage(1, { hard: true, index: 0, category, search: nextSearch, language });
   }
 
   function goFirst() {
-    void loadPage(1, { hard: false, index: 0, category, search: searchValue });
+    void loadPage(1, { hard: false, index: 0, category, search: searchValue, language });
   }
 
   function goPrev() {
@@ -215,7 +231,7 @@ export default function App() {
       return;
     }
     if (page > 1) {
-      void loadPage(page - 1, { hard: false, index: LIMIT - 1, category, search: searchValue });
+      void loadPage(page - 1, { hard: false, index: LIMIT - 1, category, search: searchValue, language });
     }
   }
 
@@ -225,7 +241,7 @@ export default function App() {
       return;
     }
     if (totalPages && page < totalPages) {
-      void loadPage(page + 1, { hard: false, index: 0, category, search: searchValue });
+      void loadPage(page + 1, { hard: false, index: 0, category, search: searchValue, language });
     }
   }
 
@@ -241,20 +257,23 @@ export default function App() {
     });
   }, [absoluteStart, pageArticles, safeIndex]);
 
-  const categories: Category[] = [
-    "tech",
-    "general",
-    "science",
-    "sports",
-    "business",
-    "health",
-    "entertainment",
-    "politics",
-    "food",
-    "travel",
-  ];
+  const categories = CATEGORY_KEYS;
+  const categoryLabels = CATEGORIES[language];
 
   const isFavorite = article ? favoritesUrlSet.has(article.url) : false;
+  const langOptions: Array<{ value: Language; label: string }> = [
+    { value: "es", label: "Español" },
+    { value: "en", label: "English" },
+    { value: "it", label: "Italiano" },
+  ];
+
+  function changeLanguage(next: Language) {
+    setLanguage(next);
+    writeLanguage(next);
+    setPage(1);
+    setCurrentIndex(0);
+    void loadPage(1, { hard: true, index: 0, category, search: searchValue, language: next });
+  }
 
   return (
     <div className="app">
@@ -265,12 +284,42 @@ export default function App() {
           </span>
           <span className="brandText">News Reader</span>
         </div>
-        <button type="button" className="btn ghost mobileOnly" onClick={() => setFiltersOpen((x) => !x)}>
-          {filtersOpen ? "Hide Filters" : "Show Filters"}
-        </button>
+        <div className="topActions">
+          <div className="mobileOnly">
+            <LanguageMenu
+              value={language}
+              onChange={changeLanguage}
+              options={langOptions}
+              label={t(language, "language")}
+              ariaLabel={t(language, "changeLanguage")}
+              compact
+            />
+          </div>
+          <button type="button" className="btn ghost mobileOnly" onClick={() => setFiltersOpen((x) => !x)}>
+            {filtersOpen ? t(language, "hideFilters") : t(language, "showFilters")}
+          </button>
+          <div className="desktopOnly">
+            <LanguageMenu
+              value={language}
+              onChange={changeLanguage}
+              options={langOptions}
+              label={t(language, "language")}
+              ariaLabel={t(language, "changeLanguage")}
+            />
+          </div>
+        </div>
       </header>
 
       <div className="shell">
+        {filtersOpen ? (
+          <button
+            type="button"
+            className="filtersBackdrop mobileOnly"
+            aria-label={t(language, "hideFilters")}
+            onClick={() => setFiltersOpen(false)}
+          />
+        ) : null}
+
         <aside className={`sidebar ${filtersOpen ? "open" : ""}`} aria-label="Filtros">
           <form
             className="searchBox"
@@ -280,7 +329,7 @@ export default function App() {
             }}
           >
             <label className="label" htmlFor="search">
-              Search
+              {t(language, "search")}
             </label>
             <div className="searchRow">
               <input
@@ -292,25 +341,25 @@ export default function App() {
                 aria-label="Buscar"
               />
               <button type="submit" className="btn primary">
-                Go
+                {t(language, "go")}
               </button>
             </div>
             <div className="hint">
-              {searchValue ? "Using search (categories omitted)." : "Using category (search omitted)."}
+              {searchValue ? t(language, "usingSearch") : t(language, "usingCategory")}
             </div>
           </form>
 
           <div className="catBox" role="group" aria-label="Categorías">
-            <div className="label">Categories</div>
+            <div className="label">{t(language, "categories")}</div>
             <div className="catGrid">
-              {categories.map((c) => (
+              {categories.map((c, idx) => (
                 <button
                   key={c}
                   type="button"
                   className={`catBtn ${!searchValue && category === c ? "active" : ""}`}
                   onClick={() => applyCategory(c)}
                 >
-                  {c}
+                  {categoryLabels[idx]}
                 </button>
               ))}
             </div>
@@ -318,7 +367,7 @@ export default function App() {
 
           <div className="sidebarFooter">
             <button type="button" className="btn ghost wide" onClick={() => setFavoritesOpen(true)}>
-              Favorites
+              {t(language, "favorites")}
             </button>
           </div>
         </aside>
@@ -327,7 +376,7 @@ export default function App() {
           {hardLoading ? (
             <div className="fullscreen">
               <div className="spinner" role="status" aria-label="Cargando" />
-              <div className="muted">Loading…</div>
+              <div className="muted">{t(language, "loading")}</div>
             </div>
           ) : error ? (
             <div className="fullscreen" role="alert">
@@ -336,9 +385,9 @@ export default function App() {
               <button
                 type="button"
                 className="btn primary"
-                onClick={() => loadPage(1, { hard: true, index: 0, category, search: searchValue })}
+                onClick={() => loadPage(1, { hard: true, index: 0, category, search: searchValue, language })}
               >
-                Retry
+                {t(language, "retry")}
               </button>
             </div>
           ) : article ? (
@@ -349,7 +398,15 @@ export default function App() {
                     <div className="spinner small" />
                   </div>
                 ) : null}
-                <ArticleCard article={article} isFavorite={isFavorite} onToggleFavorite={onToggleFavorite} />
+                <ArticleCard
+                  article={article}
+                  isFavorite={isFavorite}
+                  onToggleFavorite={onToggleFavorite}
+                  publishedText={publishedText}
+                  ctaView={t(language, "viewFullArticle")}
+                  ctaSave={t(language, "saveToFavorites")}
+                  ctaSaved={t(language, "saved")}
+                />
               </div>
 
               <div className="footerSpace">
@@ -360,12 +417,16 @@ export default function App() {
                   onPrev={goPrev}
                   onNext={goNext}
                   middle={middle}
+                  ariaLabel={t(language, "pagination")}
+                  firstLabel={t(language, "firstPage")}
+                  prevLabel={t(language, "previous")}
+                  nextLabel={t(language, "next")}
                 />
               </div>
             </>
           ) : (
             <div className="fullscreen">
-              <div className="muted">No results.</div>
+              <div className="muted">{t(language, "noResults")}</div>
             </div>
           )}
         </main>
@@ -377,6 +438,10 @@ export default function App() {
         onSelect={(a) => {
           window.open(a.url, "_blank", "noreferrer");
         }}
+        title={`{count} ${t(language, "favorites")}`}
+        backLabel={t(language, "backToLive")}
+        emptyText={t(language, "noFavorites")}
+        removeLabel={t(language, "remove")}
       />
     </div>
   );

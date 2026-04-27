@@ -22,9 +22,13 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (article: NewsArticle) => void;
+  title: string;
+  backLabel: string;
+  emptyText: string;
+  removeLabel: string;
 };
 
-export default function FavoritesSidebar({ isOpen, onClose, onSelect }: Props) {
+export default function FavoritesSidebar({ isOpen, onClose, onSelect, title, backLabel, emptyText, removeLabel }: Props) {
   const [items, setItems] = useState<NewsArticle[]>([]);
 
   useEffect(() => {
@@ -33,7 +37,7 @@ export default function FavoritesSidebar({ isOpen, onClose, onSelect }: Props) {
   }, [isOpen]);
 
   const count = items.length;
-  const title = useMemo(() => (count === 1 ? "1 Favorite" : `${count} Favorites`), [count]);
+  const computedTitle = useMemo(() => title.replace("{count}", String(count)), [count, title]);
 
   function remove(url: string) {
     const next = items.filter((x) => x.url !== url);
@@ -47,14 +51,14 @@ export default function FavoritesSidebar({ isOpen, onClose, onSelect }: Props) {
     <aside className="favOverlay" role="dialog" aria-modal="true" aria-label="Favorites">
       <div className="favPanel">
         <div className="favHeader">
-          <h2 className="favTitle">{title}</h2>
+          <h2 className="favTitle">{computedTitle}</h2>
           <button type="button" className="btn ghost" onClick={onClose}>
-            Back to Live
+            {backLabel}
           </button>
         </div>
 
         {count === 0 ? (
-          <div className="favEmpty">No favorites saved yet.</div>
+          <div className="favEmpty">{emptyText}</div>
         ) : (
           <ul className="favList" aria-label="Lista de favoritos">
             {items.map((a) => (
@@ -68,7 +72,7 @@ export default function FavoritesSidebar({ isOpen, onClose, onSelect }: Props) {
                 </button>
 
                 <button type="button" className="favRemove" onClick={() => remove(a.url)} aria-label="Remove favorite">
-                  Remove
+                  {removeLabel}
                 </button>
               </li>
             ))}
