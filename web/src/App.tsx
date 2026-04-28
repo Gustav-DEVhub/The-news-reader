@@ -3,6 +3,7 @@ import ArticleCard from "./components/ArticleCard";
 import FavoritesSidebar, { readFavorites, writeFavorites } from "./components/FavoritesSidebar";
 import LanguageMenu from "./components/LanguageMenu";
 import Paginator from "./components/Paginator";
+import ThemeToggle from "./components/ThemeToggle";
 import { readLanguage, t, toLocale, type Language, writeLanguage, CATEGORIES, CATEGORY_KEYS } from "./i18n/index";
 import {
   DEFAULT_CATEGORY,
@@ -285,6 +286,7 @@ export default function App() {
           <span className="brandText">News Reader</span>
         </div>
         <div className="topActions">
+          <ThemeToggle />
           <div className="mobileOnly">
             <LanguageMenu
               value={language}

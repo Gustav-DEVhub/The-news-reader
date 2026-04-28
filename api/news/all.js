@@ -7,7 +7,7 @@ function pickQueryString({ page, categories, search, token, language }) {
   const url = new URL(API_BASE);
   url.searchParams.set("api_token", token);
   url.searchParams.set("language", language || DEFAULT_LANGUAGE);
-  url.searchParams.set("limit", String(LIMIT));
+  url.searchParams.set("limit", "10"); // Aumentamos para margen de calidad
   url.searchParams.set("page", String(page));
 
   const searchTrimmed = typeof search === "string" ? search.trim() : "";
@@ -79,28 +79,43 @@ module.exports = async function handler(req, res) {
       return res.status(status).json(typeof body === "object" && body ? body : { error: "Upstream request failed.", status });
     }
 
-    if (isJson && body && typeof body === "object" && Array.isArray(body.data) && categories) {
-      try {
-        const requested = String(categories)
-          .split(",")
-          .map((s) => toCanonicalName(s))
-          .filter(Boolean);
+    if (isJson && body && typeof body === "object" && Array.isArray(body.data)) {
+      const originalCount = Array.isArray(body.data) ? body.data.length : 0;
 
-        if (requested.length > 0) {
-          const originalCount = Array.isArray(body.data) ? body.data.length : 0;
-          body.data = body.data.filter((a) => {
-            const cats = (Array.isArray(a.categories) ? a.categories : []).map((x) => toCanonicalName(x));
-            return requested.some((rc) => cats.includes(rc));
-          });
-          if (body.meta && typeof body.meta === "object") {
-            body.meta.returned = Array.isArray(body.data) ? body.data.length : 0;
-            body.meta.filtered = Math.max(0, originalCount - (Array.isArray(body.data) ? body.data.length : 0));
+      // 1. Filtro estricto de calidad: imagen y descripción/snippet
+      body.data = body.data.filter(a => 
+        a.image_url && 
+        a.image_url.trim() !== "" && 
+        (a.description || a.snippet)
+      );
+
+      // 2. Filtro de categorías (si aplica)
+      if (categories) {
+        try {
+          const requested = String(categories)
+            .split(",")
+            .map((s) => toCanonicalName(s))
+            .filter(Boolean);
+
+          if (requested.length > 0) {
+            body.data = body.data.filter((a) => {
+              const cats = (Array.isArray(a.categories) ? a.categories : []).map((x) => toCanonicalName(x));
+              return requested.some((rc) => cats.includes(rc));
+            });
           }
-          console.log(`[vercel-proxy] filtered category=${categories} ${originalCount} -> ${body.data.length}`);
+        } catch (e) {
+          console.warn("[vercel-proxy] category filtering failed", e);
         }
-      } catch (e) {
-        console.warn("[vercel-proxy] category filtering failed", e);
       }
+
+      // 3. Limitar a los 3 mejores resultados
+      body.data = body.data.slice(0, 3);
+
+      if (body.meta && typeof body.meta === "object") {
+        body.meta.returned = body.data.length;
+        body.meta.filtered = Math.max(0, originalCount - body.data.length);
+      }
+      console.log(`[vercel-proxy] Quality filter: ${originalCount} -> ${body.data.length}`);
     }
 
     return res.status(200).json(body);

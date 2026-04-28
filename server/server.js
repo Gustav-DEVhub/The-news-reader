@@ -55,7 +55,7 @@ app.get("/api/health", (_req, res) => {
 function pickQueryString({ page, categories, search, language }) {
   const url = new URL(API_BASE);
   url.searchParams.set("language", language || DEFAULT_LANGUAGE);
-  url.searchParams.set("limit", String(LIMIT));
+  url.searchParams.set("limit", "10"); // Aumentamos para tener margen de filtrado
   url.searchParams.set("page", String(page));
 
   const searchTrimmed = typeof search === "string" ? search.trim() : "";
@@ -120,28 +120,44 @@ app.get("/api/news/all", async (req, res) => {
 
     // Post-filter: ensure articles match the requested category
     // (The upstream API can return articles tagged with broader/translated category names)
-    if (isJson && body && typeof body === "object" && Array.isArray(body.data) && categories) {
-      try {
-        const requested = String(categories)
-          .split(",")
-          .map((s) => toCanonicalName(s))
-          .filter(Boolean);
+    if (isJson && body && typeof body === "object" && Array.isArray(body.data)) {
+      const originalCount = body.data.length;
 
-        if (requested.length > 0) {
-          const originalCount = body.data.length;
-          body.data = body.data.filter((a) => {
-            const cats = (Array.isArray(a.categories) ? a.categories : []).map((x) => toCanonicalName(x));
-            return requested.some((rc) => cats.includes(rc));
-          });
-          if (body.meta && typeof body.meta === "object") {
-            body.meta.returned = body.data.length;
-            body.meta.filtered = Math.max(0, originalCount - body.data.length);
+      // 1. Filtro estricto de calidad: imagen y descripción/snippet
+      body.data = body.data.filter(a => 
+        a.image_url && 
+        a.image_url.trim() !== "" && 
+        (a.description || a.snippet)
+      );
+
+      // 2. Filtro de categorías (si aplica)
+      if (categories) {
+        try {
+          const requested = String(categories)
+            .split(",")
+            .map((s) => toCanonicalName(s))
+            .filter(Boolean);
+
+          if (requested.length > 0) {
+            body.data = body.data.filter((a) => {
+              const cats = (Array.isArray(a.categories) ? a.categories : []).map((x) => toCanonicalName(x));
+              return requested.some((rc) => cats.includes(rc));
+            });
           }
-          console.log(`[proxy] filtered category=${categories} ${originalCount} -> ${body.data.length}`);
+        } catch (e) {
+          console.warn("[proxy] category filtering failed", e);
         }
-      } catch (e) {
-        console.warn("[proxy] category filtering failed", e);
       }
+
+      // 3. Limitar a los 3 mejores resultados
+      body.data = body.data.slice(0, 3);
+      
+      if (body.meta && typeof body.meta === "object") {
+        body.meta.returned = body.data.length;
+        body.meta.filtered = originalCount - body.data.length;
+      }
+      
+      console.log(`[proxy] Quality filter: ${originalCount} -> ${body.data.length}`);
     }
 
     return res.json(body);
