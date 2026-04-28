@@ -210,9 +210,8 @@ body {
   background: var(--surface);
   border-radius: 16px;
   overflow: hidden;
-  min-height: 480px; /* Garantiza que siempre quepa el texto y los botones */
-  height: 60vh;
-  max-height: 600px;
+  flex: 1; /* CRÍTICO: Esto hace que la tarjeta llene el espacio vacío hasta el paginador */
+  min-height: 400px;
   display: flex;
   flex-direction: column;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -244,17 +243,18 @@ body {
   bottom: 0;
   left: 0;
   width: 42%; /* Retraído hacia la izquierda */
-  min-width: 340px;
-  padding: 40px;
+  min-width: 320px;
+  padding: 24px 32px; /* Reducido para que el texto no se asfixie */
   display: flex;
   flex-direction: column;
   justify-content: flex-start; /* Empuja el texto hacia arriba */
-  gap: 20px;
+  gap: 16px;
   z-index: 3;
   /* Panel oscuro translúcido natural (sin desenfoque) */
-  background: rgba(12, 12, 16, 0.82); /* Suficientemente oscuro para leer bien */
+  background: rgba(12, 12, 16, 0.70); /* Ligeramente más transparente */
   border-right: 1px solid rgba(255, 255, 255, 0.12);
   transition: background 0.4s ease;
+  overflow-y: auto; /* Permite scroll si hay textos exageradamente largos */
 }
 
 .cardOverlay:hover {
@@ -283,7 +283,7 @@ body {
 
 .cardTitle {
   margin: 0;
-  font-size: clamp(28px, 3vw, 44px); /* Tamaño ligeramente disminuido */
+  font-size: clamp(22px, 2.5vw, 32px); /* Tamaño considerablemente reducido para que no invada la tarjeta */
   line-height: 1.25; /* Interlineado subido ligeramente para que no se corten las letras abajo */
   padding-bottom: 4px; /* Espacio extra para que no se corte la g, p, q */
   display: -webkit-box;
@@ -297,12 +297,12 @@ body {
 .cardDesc {
   margin: 0;
   color: rgba(255, 255, 255, 0.90);
-  line-height: 1.6; /* Formato de redacción más elegante y espaciado */
+  line-height: 1.5; /* Formato de redacción más elegante y espaciado */
   font-weight: 300;
   letter-spacing: 0.3px;
   max-width: 100%;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3; /* Reducido a 3 líneas para salvar más espacio */
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

@@ -12,7 +12,7 @@ type Props = {
 
 export default function ArticleCard({ article, isFavorite, onToggleFavorite, publishedText, ctaView, ctaSave, ctaSaved }: Props) {
   const title = article.title || "Untitled";
-  const imageSrc = article.image_url || "/placeholder.png";
+  const imageSrc = article.image_url || "https://placehold.co/800x600/1a1a1a/444444?text=Noticia+Sin+Imagen";
   const alt = article.title ? `Imagen de: ${article.title}` : "Imagen de noticia";
 
   return (
