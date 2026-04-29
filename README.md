@@ -1,109 +1,89 @@
-# News Reader
+# News Reader 📰
 
-News Reader is a lightweight news-reading web application that uses TheNewsAPI. The project includes:
+A high-performance, aesthetically premium news discovery platform. Built with React and Express, it provides a seamless reading experience with real-time news across multiple categories and languages, powered by **TheNewsApi**.
 
-- A React + Vite frontend located in `web/`.
-- An Express proxy/server in `server/` that keeps the API key on the server.
+![Demo](https://placehold.co/1200x600/1a1a20/ffffff?text=News+Reader+Premium+UI)
 
-Purpose
+## ✨ Features
 
-Allow users to explore news by category or search, save favorites, and navigate via pagination while keeping TheNewsAPI key secure on the backend.
+- **🎯 Quality Filtering**: Sophisticated server-side filtering that ensures every news item has a valid image and description, providing a consistent, high-quality feed.
+- **🌓 Adaptive Theming**: Full support for Dark and Light modes with smooth transitions and persistent user preferences.
+- **🌍 Multilingual Support**: Fully localized interface in **Spanish**, **English**, and **Italian**.
+- **📱 Responsive & Premium UI**: A mobile-first, "glassmorphism" inspired design that feels like a high-end digital magazine.
+- **🔗 Social Sharing**: Native device sharing integration (Web Share API) and "copy to clipboard" fallbacks for desktop.
+- **⚡ Performance Optimized**: Native lazy loading for images and asynchronous decoding to ensure snappy performance on all devices.
+- **🔖 Favorites Management**: Save and manage your favorite articles locally with a sleek sidebar interface.
 
-Requirements
+## 🛠 Tech Stack
 
-- Node.js 18+ (or a compatible version for the project's dependencies)
-- A valid TheNewsAPI key (set in `server/.env`)
+- **Frontend**: React (Vite), TypeScript, Vanilla CSS3 (Custom Design System).
+- **Backend**: Node.js, Express (Proxy Server).
+- **Deployment**: Optimized for Vercel (Serverless Functions).
+- **API**: TheNewsApi.
 
-Environment variables
+## 📁 Project Structure
 
-Create a `.env` file inside `server/` with:
-
-```env
-THENEWSAPI_TOKEN=your_api_token_here
-PORT=5177
+```text
+├── api/                # Vercel Serverless Functions (Production Proxy)
+├── server/             # Express Server (Local Development Proxy)
+├── web/                # React + Vite Frontend
+│   ├── src/
+│   │   ├── components/ # Reusable UI Components
+│   │   ├── theme/      # Theme Context and Persistence
+│   │   ├── i18n/       # Localization strings and logic
+│   │   ├── lib/        # API helpers and types
+│   │   └── styles.css  # Core Design System
+└── README.md           # Documentation
 ```
 
-Running in development
+## 🚀 Getting Started
 
-From the project root:
+### Prerequisites
 
-```bash
-npm install
-npm run dev
-```
+- Node.js 18+
+- [TheNewsApi Token](https://www.thenewsapi.com/)
 
-This starts the proxy server and the web app (Vite). By default the frontend connects to `http://localhost:5177/api/...`.
+### Installation
 
-Relevant structure
+1. **Clone the repository**:
+   ```bash
+   git clone <your-repo-url>
+   cd news-reader
+   ```
 
-- `server/server.js` — Express proxy that forwards requests to TheNewsAPI, applies category normalization and defensive filtering. Keep the API key in `server/.env`.
-- `web/src/lib/newsapi.ts` — helpers and shared client types (includes `Category`, `NewsApiResponse`, `LIMIT`).
-- `web/src/App.tsx` — main UI controller and pagination logic.
-- `web/src/components/` — UI components: `ArticleCard.tsx`, `FavoritesSidebar.tsx`, `Paginator.tsx`.
-- `web/public/` — static assets (favicon, placeholder).
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-Localization / UI
+3. **Configure environment variables**:
+   Create a `.env` file in the `server/` directory:
+   ```env
+   THENEWSAPI_TOKEN=your_api_token_here
+   PORT=5177
+   ```
 
-The app supports Spanish and English for the user interface. Internal keys used with the API (e.g. category values) remain in English for compatibility with TheNewsAPI.
+4. **Run in development**:
+   ```bash
+   npm run dev
+   ```
+   - Server: `http://localhost:5177`
+   - Web: `http://localhost:5176`
 
-Development notes
+## ☁️ Deployment
 
-- The proxy sends the key as `api_token` in the GET query and adjusts `sort` (relevance or `published_at`) depending on whether a search term is present.
-- The proxy also normalizes category labels and adds `meta.filtered` to indicate how many items were filtered out for not matching canonical categories.
-- The frontend uses caching and prefetching of pages for snappy navigation.
+This project is ready for **Vercel**.
 
-Favicon
+1. **Set Environment Variables**: In your Vercel Dashboard, add `THENEWSAPI_TOKEN`.
+2. **Build Settings**: The project is pre-configured with `api/` functions for the proxy.
+3. **Deploy**: Push to your main branch or use `vercel deploy`.
 
-The favicon is served from `web/public/favicon.png`. If you replace the file, restart the dev server and reload the browser (Ctrl+F5).
+## 🛡 Security & Architecture
 
-Next recommended steps
-
-- Keep translation strings in `web/src/i18n.tsx` (already added) and continue extracting UI text to localization keys as you expand features.
-- Consider adding server-side retry/backfill logic if you want the proxy to automatically refill pages after filtering (this can use API quota).
-
-Contact / help
-
-If you want, I can:
-
-- Expand translations across more components.
-- Add language switch persistence or additional languages.
-
-Tell me which of those you'd like next.
-
-Deploying to Vercel (serverless proxy)
-
-This project now includes a Vercel-compatible serverless proxy at `api/news/all.js`. If you want to deploy the full-stack app on Vercel, follow these steps:
-
-1. Add your TheNewsAPI token to Vercel project environment variables:
-
-	- Key: `THENEWSAPI_TOKEN`
-	- Value: your API token
-
-2. Ensure the frontend calls the proxy at `/api/news/all` (the client already builds URLs to `/api/news/all`).
-
-3. (Optional) Add a `vercel.json` if you want explicit builds or routing. The app will usually deploy without it when Vercel detects the `web/` frontend and `api/` functions.
-
-4. Push to GitHub and import the repo into Vercel. Deploy.
-
-Notes and considerations
-
-- The serverless function uses `process.env.THENEWSAPI_TOKEN` and implements the same category normalization and defensive filtering as the original Express server.
-- Serverless functions have timeouts and no persistent in-memory cache; consider adding caching (CDN or external cache) if you need to reduce upstream calls.
-- Do NOT commit your `.env` file to Git.
-
-If you want, I can:
-
-- Convert any remaining server logic into additional API routes under `api/`.
-- Add a `vercel.json` and a deployment checklist and test using `vercel dev` locally.
+- **Secure Proxy**: The API key is never exposed to the frontend. All requests go through the backend proxy.
+- **Defense in Depth**: Category normalization and quality filtering happen server-side to reduce data processing on the client.
+- **Privacy**: User preferences (theme, language, favorites) are stored locally on the user's device.
 
 ---
 
-Latest changes (summary)
-
-- Added simple localization system (`web/src/i18n.tsx`) with Spanish and English translations.
-- Added a language toggle component (`web/src/components/LanguageToggle.tsx`) and integrated it in the header (desktop) and next to the filters button on mobile.
-- Replaced many visible strings with localized keys (header, search, categories, paginator, favorites, article actions, footer note).
-- Implemented language persistence via `localStorage`.
-- Translated the README to English.
-
-If you want the README bilingual, or prefer `react-i18next` for richer i18n features, I can add that next.
+*Built with passion for quality journalism and high-end web design.*
