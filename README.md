@@ -2,7 +2,7 @@
 
 A high-performance, aesthetically premium news discovery platform. Built with React and Express, it provides a seamless reading experience with real-time news across multiple categories and languages, powered by **TheNewsApi**.
 
-![Demo](https://placehold.co/1200x600/1a1a20/ffffff?text=News+Reader+Premium+UI)
+> Project screenshot pending. Capture the deployed UI before using this README as a portfolio asset.
 
 ## ✨ Features
 
@@ -80,7 +80,7 @@ This project is ready for **Vercel**.
 
 ## 🛡 Security & Architecture
 
-- **Secure Proxy**: The API key is never exposed to the frontend. All requests go through the backend proxy.
+- **Secure Proxy**: The API key is never exposed to the frontend. Browser requests go through an internal API proxy/serverless function.
 - **Defense in Depth**: Category normalization and quality filtering happen server-side to reduce data processing on the client.
 - **Privacy**: User preferences (theme, language, favorites) are stored locally on the user's device.
 

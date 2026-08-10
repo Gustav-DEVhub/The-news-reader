@@ -3,9 +3,8 @@ const LIMIT = 3;
 const DEFAULT_LANGUAGE = "es";
 const REQUEST_TIMEOUT_MS = 10_000;
 
-function pickQueryString({ page, categories, search, token, language }) {
+function pickQueryString({ page, categories, search, language }) {
   const url = new URL(API_BASE);
-  url.searchParams.set("api_token", token);
   url.searchParams.set("language", language || DEFAULT_LANGUAGE);
   url.searchParams.set("limit", "10"); // Aumentamos para margen de calidad
   url.searchParams.set("page", String(page));
@@ -62,14 +61,20 @@ module.exports = async function handler(req, res) {
   const languageRaw = String(req.query.language ?? DEFAULT_LANGUAGE).trim().toLowerCase();
   const language = languageRaw === "en" || languageRaw === "es" || languageRaw === "it" ? languageRaw : DEFAULT_LANGUAGE;
 
-  const upstreamUrl = pickQueryString({ page, categories, search, token, language });
-  console.log(`[vercel-proxy] GET ${upstreamUrl.toString().replace(token, "***")}`);
+  const upstreamUrl = pickQueryString({ page, categories, search, language });
+  console.log(`[vercel-proxy] GET ${upstreamUrl.toString()}`);
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    const upstreamRes = await fetch(upstreamUrl.toString(), { method: "GET", signal: controller.signal });
+    const upstreamRes = await fetch(upstreamUrl.toString(), {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      signal: controller.signal,
+    });
     const contentType = upstreamRes.headers.get("content-type") || "";
     const isJson = contentType.includes("application/json");
     const body = isJson ? await upstreamRes.json() : await upstreamRes.text();
