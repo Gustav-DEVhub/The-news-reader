@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/main.tsx","./src/components/articlecard.tsx","./src/components/favoritessidebar.tsx","./src/components/languagemenu.tsx","./src/components/paginator.tsx","./src/i18n/index.ts","./src/lib/newsapi.ts"],"version":"5.9.3"}
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/articlecard.tsx","./src/components/favoritessidebar.tsx","./src/components/languagemenu.tsx","./src/components/paginator.tsx","./src/components/themetoggle.tsx","./src/i18n/index.ts","./src/lib/newsapi.ts","./src/theme/themecontext.tsx"],"version":"5.9.3"}
