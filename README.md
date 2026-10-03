@@ -2,8 +2,6 @@
 
 A high-performance, aesthetically premium news discovery platform. Built with React and Express, it provides a seamless reading experience with real-time news across multiple categories and languages, powered by **TheNewsApi**.
 
-> Project screenshot pending. Capture the deployed UI before using this README as a portfolio asset.
-
 ## ✨ Features
 
 - **🎯 Quality Filtering**: Sophisticated server-side filtering that ensures every news item has a valid image and description, providing a consistent, high-quality feed.
