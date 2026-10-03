@@ -14,10 +14,31 @@ A high-performance, aesthetically premium news discovery platform. Built with Re
 
 ## 🛠 Tech Stack
 
-- **Frontend**: React (Vite), TypeScript, Vanilla CSS3 (Custom Design System).
-- **Backend**: Node.js, Express (Proxy Server).
-- **Deployment**: Optimized for Vercel (Serverless Functions).
-- **API**: TheNewsApi.
+Verified against each workspace's `package.json`:
+
+**Frontend (`web/`)**
+
+- React 18 + React DOM
+- TypeScript 5.9
+- Vite 7 (`@vitejs/plugin-react`)
+- Vanilla CSS3 custom design system (no CSS framework)
+- Custom Theme Context and i18n (Spanish, English, Italian)
+
+**Backend (`server/` — local development proxy)**
+
+- Node.js 16+
+- Express 4
+- `cors`, `dotenv`, `node-fetch`
+
+**Production API (`api/`)**
+
+- Vercel Serverless Functions (secure TheNewsApi proxy)
+
+**Tooling & Deployment**
+
+- npm workspaces (`server` + `web`) with `concurrently` for parallel dev scripts
+- TheNewsApi as the news data source
+- Deployed on Vercel
 
 ## 📁 Project Structure
 
